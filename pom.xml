@@ -18,7 +18,7 @@
         <version.opennms.integration.api>1.6.0</version.opennms.integration.api>
     </properties>
     <dependencies>
-        <!-- TODO MVR this is only here to prevent shuting down after main processing -->
+        <!-- TODO MVR this is only here to prevent shutting down after main processing -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -44,7 +44,7 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
-        <!-- TODO MVR not compatible with jakkarta :( -->
+        <!-- TODO MVR not compatible with jakarta :( -->
 <!--        <dependency>-->
 <!--            <groupId>org.opennms.integration.api</groupId>-->
 <!--            <artifactId>config</artifactId>-->

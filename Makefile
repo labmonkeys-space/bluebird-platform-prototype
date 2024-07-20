@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := compile
 
+ARTIFACT_DIR := target/artifacts
+
 .PHONY: help
 help:
 	@echo ""
@@ -16,6 +18,15 @@ deps:
 	command -v mvn
 	@echo "Check Java JDK version 21"
 	@java -version 2>&1 | grep "version \"21\..*\""
+	@echo "Create artifacts directory"
+	mkdir -p $(ARTIFACT_DIR)
+
+.PHONY: deps-docker
+deps-docker:
+	@echo "Verify if Docker is installed"
+	command -v docker
+	@echo "Verify if Docker daemon is running"
+	docker ps
 
 .PHONY: compile
 compile: deps
@@ -28,7 +39,13 @@ tests:
 .PHONY: build
 build:
 	mvn install -DskipTests
+	cp target/eventbus-*.jar $(ARTIFACT_DIR)/eventbus.jar
+
+.PHONY: oci
+oci: deps-docker build
+	docker build -t symbiote .
 
 .PHONY: clean
 clean:
 	mvn clean
+	rm -rf $(ARTIFACT_DIR)

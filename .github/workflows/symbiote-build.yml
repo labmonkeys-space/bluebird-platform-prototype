@@ -24,3 +24,18 @@ jobs:
         with:
           name: eventbus-jar
           path: target/eventbus-*.jar
+      - name: Login to Quay registry
+        if: github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+      - name: Build and push container image
+        if: github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: quay.io/labmonkeys/symbiote:snapshot

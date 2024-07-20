@@ -33,11 +33,11 @@ compile: deps
 	mvn compile
 
 .PHONY: tests
-tests:
+tests: deps
 	mvn test
 
 .PHONY: build
-build:
+build: deps
 	mvn install -DskipTests
 	cp target/eventbus-*.jar $(ARTIFACT_DIR)/eventbus.jar
 
@@ -46,6 +46,6 @@ oci: deps-docker build
 	docker build -t symbiote .
 
 .PHONY: clean
-clean:
+clean: deps
 	mvn clean
 	rm -rf $(ARTIFACT_DIR)

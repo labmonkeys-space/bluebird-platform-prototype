@@ -1,5 +1,21 @@
 ---
 services:
+  database:
+    image: postgres:16
+    environment:
+      TZ: Europe/Berlin
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+    ports:
+      - "5432:5432/tcp"
+
   kafka:
     image: confluentinc/cp-kafka:latest
     environment:
@@ -27,7 +43,33 @@ services:
         condition: service_started
     environment:
       TZ: Europe/Berlin
-      KAFKA_CLUSTERS_0_NAME: bluebird-paly
+      KAFKA_CLUSTERS_0_NAME: bluebird-play
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+    ports:
+      - "8081:8080/tcp"
+
+  symbiote:
+    image: symbiote:latest
+    depends_on:
+      kafka:
+        condition: service_started
+      database:
+        condition: service_healthy
+    environment:
+      TZ: Europe/Berlin
+      SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/bluebird
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL-AUTO: create-drop
+      ORG_BLUEBIRD_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+      ORG_BLUEBIRD_KAFKA_INTEGRATION_OPENNMS_GROUPID: opennms
+      ORG_BLUEBIRD_KAFKA_INTEGRATION_OPENNMS_TOPICS_EVENTS: events
+      ORG_BLUEBIRD_KAFKA_INTEGRATION_OPENNMS_TOPICS_ALARMS: alarms
+      ORG_BLUEBIRD_KAFKA_INTEGRATION_OPENNMS_TOPICS_NODES: nodes
+      ORG_BLUEBIRD_INTEGRATION_OPENNMS_HOME: /opennms
+    volumes:
+      - "./opennms:/opennms"
     ports:
       - "8080:8080/tcp"
